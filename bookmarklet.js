@@ -146,7 +146,7 @@ function loadGithub(slug, filepath) {
     if (gitRequest.readyState == 4) {
       if (gitRequest.status == 200) {
         filepath = filterEmpty(filepath);
-        alert("https://cdn.rawgit.com/" + alert(slug) + "/" + JSON.parse(gitRequest.responseText).tag_name + "/" + filepath);
+        loadBookmarklet("https://cdn.rawgit.com/" + slug + "/" + JSON.parse(gitRequest.responseText).tag_name + "/" + filepath);
       } else if (gitRequest.status == 400) {
         alert("Couldn't connect to GitHub");
       }
