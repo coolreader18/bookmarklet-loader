@@ -11,7 +11,7 @@ s.onload = function() {
   loadGithub("name/repo","path/file.min.js");
 }
 ```
- Minify it, bookmarklify it with mrcoles.com/bookmarklet, whatever. Keep in mind that this draws from GitHub releases, not git tags.
+ Minify it, bookmarklify it with http://mrcoles.com/bookmarklet, whatever. Keep in mind that this draws from GitHub releases, not git tags.
  
 ## Credit
 
