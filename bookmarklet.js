@@ -1,156 +1,157 @@
-// ==Bookmarklet==
-// @name Auto Cookie Clicker
-// @author coolreader18
-// @script https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
-// @script https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
-// @script https://cdn.jsdelivr.net/npm/js-cookie/src/js.cookie.min.js
-// ==/Bookmarklet==
-
-openOptions = function() {
-  openOptWin();
-  if (optionsWindow) {
-    if (!optionsWindow.closed) {
-      optionsWindow.close();
+var str = 1,
+  list = 2,
+  metadata = {
+    types: {
+      string: str,
+      list: list
+    },
+    keys: {
+      name: str,
+      version: str,
+      description: str,
+      repository: str,
+      author: str,
+      email: str,
+      url: str,
+      license: str,
+      script: list,
+      style: list
     }
-  }
-  openOptWin();
-  optDoc = optionsWindow.document;
-  optDoc.title = "AutoCookie Options";
-  var $options = $(optDoc.body);
-  var buying, notBuying;
-  $options.append("<h1>AutoCookie Options</h1>")
-    .append("<h2>Auto Clicking Options</h2>")
-    .append($("<div>")
-      .append($("<input type='checkbox' id='bigCookie'>")
-        .prop("checked", options.bigCookie))
-      .append("<label for='bigCookie'>Big Cookie</label>"))
-    .append("<br>")
-    .append($("<input type='checkbox' id='goldenCookie'>")
-      .prop("checked", options.goldenCookie))
-    .append("<label for='goldenCookie'>Golden Cookie</label>")
-    .append("<h2>Auto Buying Options</h2>")
-    .append($("<div>").css("width", "100%")
-      .append($("<div>")
-        .append("<h3>Buying</h3>")
-        .append(buying = $("<ol id='buying' class='products'>")))
-      .append($("<div>")
-        .append("<h3>Not Buying</h3>")
-        .append(notBuying = $("<ol id='notBuying' class='products'>"))))
-    .append("<button onclick='window.close()'>Done</button>")
-  $(optDoc.head).append(`<style>
-    #buying, #notBuying {
-    border: 1px solid #eee;
-    width: 142px;
-    min-height: 20px;
-    list-style-type: none;
-    margin: 0;
-    padding: 5px 0 0 0;
-    float: left;
-    margin-right: 10px;
-  }
-  div {
-  	display: inline-block;
-  }
-  #buying li, #notBuying li {
-    margin: 0 5px 5px 5px;
-    padding: 5px;
-    font-size: 1.2em;
-    width: 120px;
-  }</style>`)
-
-  options.buying.forEach(function(product) {
-    buying.append($("<li class='ui-sortable'>").data("object", product).html(product.title));
-  })
-  options.notBuying.forEach(function(product) {
-    notBuying.append($("<li class='ui-sortable'>").data("object", product).html(product.title));
-  })
-
-  $("#buying, #notbuying", optDoc).sortable({
-    connectWith: ".products"
-
-  }).disableSelection().on("sortout", function() {
-    options.buying = [];
-    $("#buying li", optDoc).each(function(i, li) {
-      options.buying.push($(li).data("object"));
-    })
-    options.notBuying = [];
-    $("#notBuying li", optDoc).each(function(i, li) {
-      options.notBuying.push($(li).data("object"));
-    })
-    updateCookie();
-  });
-}
-
-if (window.autoActive) {
-  openOptions();
-} else {
-  autoActive = true;
-  var JSONopts = Cookies.getJSON("AutoCookieOptions");
-  options = JSONopts ? JSONopts : {
-    bigCookie: true,
-    goldenCookie: true,
-    buying: [],
-    notBuying: [{
-      ind: 0,
-      title: "Cursor"
-    }, {
-      ind: 1,
-      title: "Grandma"
-    }, {
-      ind: 2,
-      title: "Farm"
-    }, {
-      ind: 3,
-      title: "Factory"
-    }, {
-      ind: 4,
-      title: "Mine"
-    }, {
-      ind: 5,
-      title: "Shipment"
-    }, {
-      ind: 6,
-      title: "Alchemy lab"
-    }, {
-      ind: 7,
-      title: "Portal"
-    }, {
-      ind: 8,
-      title: "Time machine"
-    }, {
-      ind: 9,
-      title: "Antimatter condenser"
-    }]
   };
-  updateCookie();
+
+function quoteEscape(x) {
+  return x.replace('"', '\\"').replace("'", "\\'");
 }
 
-setInterval(function() {
-  if (options.bigCookie) {
-    $("#bigCookie").click();
-  }
-  if (options.goldenCookie) {
-    $("#goldenCookie").click();
-  }
-  var buy = options.buying[Symbol.iterator]();
-  buyNext();
-
-  function buyNext() {
-    var curitem = $("#product" + buy.next().value.ind + ".enabled");
-    if (curitem.length) {
-      curitem.click();
-    } else {
-      buyNext();
+function convert(codein) {
+  var stylesCode = '';
+  var codetmp = parseFile(codein);
+  var options = codetmp.options;
+  var code = codetmp.code;
+  if (options.script) {
+    options.script = options.script.reverse();
+    for (var i = 0, len = options.script.length; i < len; i++) {
+      code = loadScript(code, options.script[i]);
     }
   }
-}, 10)
 
-function openOptWin() {
-  optionsWindow = window.open("", "AutoCookieOptions", "height=600,width=400,status=yes,toolbar=no,menubar=no,location=no");
+  if (options.style) {
+    for (var j = 0, length = options.style.length; j < length; j++) {
+      stylesCode += 'var link = document.createElement("link"); link.rel="stylesheet"; link.href = "' + quoteEscape(options.style[j]) + '"; document.body.appendChild(link);';
+    }
+    code = stylesCode + code;
+  }
+  return code;
 }
 
-function updateCookie() {
-  Cookies.set("AutoCookieOptions", options, {
-    expires: 365
+function parseFile(data) {
+  var inMetadataBlock = false,
+    openMetadata = '==Bookmarklet==',
+    closeMetadata = '==/Bookmarklet==',
+    rComment = /^(\s*\/\/\s*)/,
+    mdKeys = metadata.keys,
+    mdTypes = metadata.types,
+    options = {},
+    code = [],
+    errors = [];
+
+  // parse file and gather options from metadata block if available
+  data.match(/[^\r\n]+/g).forEach(function(line, i, lines) {
+
+    // comment
+    if (rComment.test(line)) {
+      var comment = line.replace(rComment, '').trim(),
+        canonicalComment = comment.toLowerCase().replace(/\s+/g, '');
+
+      if (!inMetadataBlock) {
+        if (canonicalComment == openMetadata.toLowerCase()) {
+          inMetadataBlock = true;
+        }
+      } else {
+        if (canonicalComment == closeMetadata.toLowerCase()) {
+          inMetadataBlock = false;
+        } else {
+          var m = comment.match(/^@([^\s]+)\s+(.*)$/);
+          if (m) {
+            var k = m[1],
+              v = m[2];
+            if (k) {
+              if (mdKeys[k] == mdTypes.list) {
+                options[k] = options[k] || [];
+                options[k].push(v);
+              } else {
+                options[m[1]] = m[2];
+              }
+            } else {
+              warn('ignoring invalid metadata option: `' + k + '`');
+            }
+          }
+        }
+      }
+
+      // code
+    } else {
+      code.push(line);
+    }
+
+    if (inMetadataBlock && i + 1 == lines.length) {
+      errors.push('missing metdata block closing `' +
+        closeMetadata + '`');
+    }
   });
+
+  return {
+    code: code.join('\n'),
+    options: options,
+    errors: errors.length ? errors : null
+  };
+}
+
+function quoteEscape(x) {
+  return x.replace('"', '\\"').replace("'", "\\'");
+}
+
+function loadScript(code, path) {
+  return 'function callback(){' + code + '}' + 'var s = document.createElement("script"); if (s.addEventListener) {s.addEventListener("load", callback, false)} else if (s.readyState) {s.onreadystatechange = callback}s.src = "' + quoteEscape(path) + '";document.body.appendChild(s);'
+}
+
+function loadBookmarklet(script) {
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4) {
+      if (xmlhttp.status == 200) {
+        processScript(xmlhttp.responseText);
+      } else if (xmlhttp.status == 400) {
+        alert('There was an error 400');
+      }
+    }
+  };
+  xmlhttp.open("GET", script, true);
+  xmlhttp.send();
+}
+
+function processScript(scripttext) {
+  eval(convert(scripttext));
+}
+
+function loadGithub(slug, filepath) {
+  function filterEmpty(str) {
+    return str.split("/").filter(function(elem) {
+      return elem !== ""
+    }).join("/");
+  }
+  slug = filterEmpty(slug);
+  var gitRequest = new XMLHttpRequest();
+  gitRequest.onreadystatechange = function() {
+    if (gitRequest.readyState == 4) {
+      if (gitRequest.status == 200) {
+        filepath = filterEmpty(filepath);
+        loadBookmarklet("https://cdn.rawgit.com/" + slug + "/" + JSON.parse(gitRequest.responseText).tag_name + "/" + filepath);
+      } else if (gitRequest.status == 400) {
+        alert("Couldn't connect to GitHub");
+      }
+    }
+  };
+  gitRequest.open("GET", "https://api.github.com/repos/" + slug + "/releases/latest", true)
+  gitRequest.send();
 }
