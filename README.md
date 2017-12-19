@@ -2,7 +2,7 @@
 A bookmarklet loader using mrcoles/bookmarklet syntax. It allows for easy bookmarklet loading and processing from a remote url, using mrcoles' bookmarklet metadata, and it getting a file from the latest GitHub repository release.
 
 ## Usage
-Look at [mrcoles/bookmarklet](https://github.com/mrcoles/bookmarklet), use that metadata syntax to do it.
+Look at [mrcoles/bookmarklet](https://github.com/mrcoles/bookmarklet), use that metadata if you'd like to. It lets you effectively 'require' scripts or import css, which makes things very easy.
 Example of how you'd use this:
 ```
 var s = document.createElement("script");
