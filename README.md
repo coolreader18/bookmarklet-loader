@@ -13,7 +13,7 @@ s.onload = function() {
 }
 ```
 Keep in mind that this draws from GitHub releases, not git tags.
-Other options are `loadScript("<url>")`, which loads directly from a given url, `processScript("<script>")`, which directly takes a script input, runs it through the parser, and executes it. You could also just copy the entirety of the bookmarkelt.min.js, and put your loader function after. Then minify it, bookmarklify it with https://mrcoles.com/bookmarklet, whatever. Just make sure to keep the metadata, as it is in comments that would likely be removed.
+Other options are `loadScript("<url>")`, which loads directly from a given url, `processScript("<script>")`, which directly takes a script input, runs it through the parser, and executes it. You could also just copy the entirety of the bookmarkelt.min.js, and put your loader function after. Then minify it, bookmarklify it, whatever. Just make sure to keep the metadata, as it is in comments that would likely be removed.
  
 ## Credit
 [mrcoles/bookmarklet](https://github.com/mrcoles/bookmarklet), I took some code from there to parse the bookmarklet files, and it uses his syntax in the first place.
