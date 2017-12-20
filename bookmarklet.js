@@ -1,64 +1,31 @@
-var str = 1,
-  list = 2,
-  metadata = {
-    types: {
-      string: str,
-      list: list
-    },
-    keys: {
-      name: str,
-      version: str,
-      description: str,
-      repository: str,
-      author: str,
-      email: str,
-      url: str,
-      license: str,
-      script: list,
-      style: list
-    }
-  };
+BMLoader = {
+  scripts: {}
+};
 
-function quoteEscape(x) {
-  return x.replace('"', '\\"').replace("'", "\\'");
-}
-
-function convert(codein) {
-  var stylesCode = '';
-  var codetmp = parseFile(codein);
-  var options = codetmp.options;
-  var code = codetmp.code;
-  if (options.script) {
-    options.script = options.script.reverse();
-    for (var i = 0, len = options.script.length; i < len; i++) {
-      code = loadScript(code, options.script[i]);
-    }
-  }
-
-  if (options.style) {
-    for (var j = 0, length = options.style.length; j < length; j++) {
-      stylesCode += 'var link = document.createElement("link"); link.rel="stylesheet"; link.href = "' + quoteEscape(options.style[j]) + '"; document.body.appendChild(link);';
-    }
-    code = stylesCode + code;
-  }
-  return code;
-}
-
-function parseFile(data) {
+BMLoader.parseFile = function(data) {
   var inMetadataBlock = false,
     openMetadata = '==Bookmarklet==',
     closeMetadata = '==/Bookmarklet==',
     rComment = /^(\s*\/\/\s*)/,
-    mdKeys = metadata.keys,
-    mdTypes = metadata.types,
+    md = {
+      name: '',
+      version: '',
+      description: '',
+      repository: '',
+      author: '',
+      email: '',
+      url: '',
+      license: '',
+      script: [],
+      style: [],
+      init: []
+    },
     options = {},
     code = [],
-    errors = [];
+    errors = [],
+    bookmarklet = false;
 
-  // parse file and gather options from metadata block if available
   data.match(/[^\r\n]+/g).forEach(function(line, i, lines) {
-
-    // comment
     if (rComment.test(line)) {
       var comment = line.replace(rComment, '').trim(),
         canonicalComment = comment.toLowerCase().replace(/\s+/g, '');
@@ -66,6 +33,7 @@ function parseFile(data) {
       if (!inMetadataBlock) {
         if (canonicalComment == openMetadata.toLowerCase()) {
           inMetadataBlock = true;
+          bookmarklet = true;
         }
       } else {
         if (canonicalComment == closeMetadata.toLowerCase()) {
@@ -76,11 +44,11 @@ function parseFile(data) {
             var k = m[1],
               v = m[2];
             if (k) {
-              if (mdKeys[k] == mdTypes.list) {
+              if (Array.isArray(md[k])) {
                 options[k] = options[k] || [];
                 options[k].push(v);
               } else {
-                options[m[1]] = m[2];
+                options[k] = v;
               }
             } else {
               warn('ignoring invalid metadata option: `' + k + '`');
@@ -88,8 +56,6 @@ function parseFile(data) {
           }
         }
       }
-
-      // code
     } else {
       code.push(line);
     }
@@ -99,59 +65,71 @@ function parseFile(data) {
         closeMetadata + '`');
     }
   });
-
   return {
+    metadata: options,
     code: code.join('\n'),
-    options: options,
-    errors: errors.length ? errors : null
+    errors: errors.length ? errors : null,
+    bookmarklet: bookmarklet
   };
 }
 
-function quoteEscape(x) {
-  return x.replace('"', '\\"').replace("'", "\\'");
-}
-
-function loadScript(code, path) {
-  return 'function callback(){' + code + '}' + 'var s = document.createElement("script"); if (s.addEventListener) {s.addEventListener("load", callback, false)} else if (s.readyState) {s.onreadystatechange = callback}s.src = "' + quoteEscape(path) + '";document.body.appendChild(s);'
-}
-
-function loadBookmarklet(script) {
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4) {
-      if (xmlhttp.status == 200) {
-        processScript(xmlhttp.responseText);
-      } else if (xmlhttp.status == 400) {
-        alert('There was an error 400');
-      }
+BMLoader.loadBookmarklet = function(script) {
+  return fetch(script).then(function(response) {
+    if (response.ok) {
+      return response.text().then(BMLoader.processScript)
+    } else if (xmlhttp.status == 400) {
+      alert("Couldn't load the bookmarklet");
     }
-  };
-  xmlhttp.open("GET", script, true);
-  xmlhttp.send();
+  });
 }
 
-function processScript(scripttext) {
-  eval(convert(scripttext));
-}
-
-function loadGithub(slug, filepath) {
-  function filterEmpty(str) {
-    return str.split("/").filter(function(elem) {
-      return elem !== ""
-    }).join("/");
+BMLoader.processScript = async function(scripttext) {
+  var parsed = BMLoader.parseFile(scripttext),
+    meta = parsed.metadata,
+    code = parsed.code,
+    waitScript = new Promise(async function(resolveAll) {
+      if (!meta.script) {
+        resolveAll()
+      } else {
+        meta.script.forEach(async function(cur, i, scripts) {
+          await BMLoader.loadBookmarklet(cur);
+          if (i == scripts.length - 1) {
+            resolveAll();
+          }
+        })
+      }
+    });
+  if (meta.style) {
+    meta.style.forEach(function(cur) {
+      var l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = cur;
+      document.head.append(l);
+    })
   }
-  slug = filterEmpty(slug);
-  var gitRequest = new XMLHttpRequest();
-  gitRequest.onreadystatechange = function() {
-    if (gitRequest.readyState == 4) {
-      if (gitRequest.status == 200) {
-        filepath = filterEmpty(filepath);
-        loadBookmarklet("https://cdn.rawgit.com/" + slug + "/" + JSON.parse(gitRequest.responseText).tag_name + "/" + filepath);
-      } else if (gitRequest.status == 400) {
+  await waitScript;
+  if (parsed.bookmarklet) {
+    var namespace = BMLoader.scripts[meta.name] = BMLoader.scripts[meta.name] || parsed;
+    namespace.clicks = namespace.clicks + 1 || 0;
+    eval("(function(){" + code + "})").apply(namespace);
+  } else {
+    eval(code);
+  }
+  return;
+}
+
+BMLoader.loadGithub = function(file) {
+  var filearr = file.split("/"),
+    slug = filearr.slice(0, 2).join("/"),
+    filepath = filearr.slice(2).join("/");
+  return fetch("https://api.github.com/repos/" + slug + "/releases/latest")
+    .then(response => {
+      if (response.ok) {
+        response.json().then(release => {
+          BMLoader.loadBookmarklet("https://cdn.rawgit.com/" + slug + "/" + release.tag_name + "/" + filepath);
+        });
+      } else {
         alert("Couldn't connect to GitHub");
       }
-    }
-  };
-  gitRequest.open("GET", "https://api.github.com/repos/" + slug + "/releases/latest", true)
-  gitRequest.send();
-}
+    });
+};
