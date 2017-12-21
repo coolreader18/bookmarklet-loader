@@ -1,13 +1,16 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans');
 html, body {
-  height: 100%;
   display: flex;
   align-items: center;
 }
 html {
+  height: 100%;
   text-align: center;
   justify-content: center;
   vertical-align: center;
   font-family: 'Noto Sans', sans-serif;
   font-size: 25px;
+}
+body {
+  height: 95%;
 }
