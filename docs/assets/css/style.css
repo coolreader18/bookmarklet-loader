@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans');
-body,
 html {
   height: 100%;
   display: flex;
@@ -7,9 +6,6 @@ html {
   align-items: center;
   justify-content: center;
   vertical-align: center;
-}
-
-p {
   font-family: 'Noto Sans', sans-serif;
   font-size: 25px;
 }
