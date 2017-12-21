@@ -1,9 +1,11 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans');
-html {
+html, body {
   height: 100%;
   display: flex;
-  text-align: center;
   align-items: center;
+}
+html {
+  text-align: center;
   justify-content: center;
   vertical-align: center;
   font-family: 'Noto Sans', sans-serif;
