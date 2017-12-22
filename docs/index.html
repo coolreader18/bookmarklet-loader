@@ -7,6 +7,27 @@
   </head>
   <body>
     <div id='main' class='valign-wrapper center-align'>
+      <p id="user" style="display: none;">Drag this to your bookmarks bar: <a id="bookmarklet-link"></a></p>
+      <div id="dev">
+        <h2>Bookmarklets</h2>
+        <a href='https://github.com/coolreader18/bookmarklet-loader/'>What is this?</a>
+        <p>
+          So you've made a bookmarklet for the bookmarklet loader. Cool! Now, how to distribute it? Well, with this website!
+          Simply put in the information, and get out a url that you can link people to!
+        </p>
+        <div class="row">
+          <div class="input-field col s6">
+            <input id="url" type="text">
+            <label for="url"></label>
+          </div>
+          <div class="input-field col s6">
+            <input id="name" type="text" class="tooltipped" data-position="bottom" data-tooltipped="This is the name that users would see on the bookmarklet">
+            <label for="name">Name</label>
+          </div>
+        </div>
+        <button id="create" class="btn">Create</button>
+        <p id="result"></p>
+      </div>
     </div>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
