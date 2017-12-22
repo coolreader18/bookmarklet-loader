@@ -8,6 +8,10 @@
       )
     ))
   } else {
-    $body.append($("<div>").append("<h2>Bookmarklets</h2>")
+    $body.append(
+      $("<div>")
+      .append("<h2>Bookmarklets</h2>")
+      .append("<a href='https://github.com/coolreader18/bookmarklet-loader/'>What is this?</a>")
+      .append("<p>You've made a bookmarklet with the bookmarklet loader. Cool! Now, how to distribute it? Well, with this website!\nSimply put in the information, and get out a url that you can link people to!</p>"))
   }
 })();
