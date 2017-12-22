@@ -10,7 +10,7 @@ if (qs.script) {
   }).change();
   $("#dev").show();
   $("#create").click(function() {
-    $("#result").text(`Link to ${$("#name").val()}`).attr("href",`https://coolreader18.github.io/bookmarklet-loader?name=${encodeURIComponent($("#name").val())}&script=${encodeURIComponent($("#script").val())}${$("input[name=method]:radio:checked").attr("id")}`).attr("target","bmlinktest");
+    $("#result").text(`Link to ${$("#name").val()}`).attr("href",`https://coolreader18.github.io/bookmarklet-loader?name=${encodeURIComponent($("#name").val())}&script=${encodeURIComponent($("#script").val())}&method=${$("input[name=method]:radio:checked").attr("id")}`).attr("target","bmlinktest");
   });
 }
 
