@@ -5,9 +5,11 @@
   display: none;
 }
 #user, #main {
-  height: 100%;
   width: 100%;
 }
 #user {
   font-size: 32px;
+}
+#main {
+  height: 100%;
 }
