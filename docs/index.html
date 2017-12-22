@@ -8,7 +8,7 @@
 <body>
   <div id='main' class='valign-wrapper center-align'>
     <p id="user" style="display: none;">Drag this to your bookmarks bar: <a id="bookmarklet-link"></a></p>
-    <div id="dev">
+    <div id="dev" style="display: none;">
       <h2>Bookmarklets</h2>
       <a href='https://github.com/coolreader18/bookmarklet-loader/'>What is this?</a>
       <p>
@@ -16,13 +16,25 @@
         Simply put in the information, and get out a url that you can link people to!
       </p>
       <div class="row">
-        <div class="input-field col s6">
-          <input id="url" type="text">
-          <label for="url"></label>
+        <div class="col s2">
+          <p>
+            <input name="method" type="radio" id="github" value="GitHub" class="with-gap" checked/>
+            <label for="github">GitHub</label>
+          </p>
+          <p>
+            <input name="method" type="radio" id="url" value="URL" class="with-gap"/>
+            <label for="url">Normal URL</label>
+          </p>
         </div>
-        <div class="input-field col s6">
-          <input id="name" type="text" class="tooltipped" data-position="bottom" data-tooltipped="This is the name that users would see on the bookmarklet">
-          <label for="name">Name</label>
+        <div class="col s10">
+          <div class="input-field">
+            <input id="name" type="text" class="tooltipped" data-position="bottom" data-tooltip="This is the name that users would see on the bookmarklet">
+            <label for="name">Name</label>
+          </div>
+          <div class="input-field">
+            <input id="url" type="text">
+            <label for="url"></label>
+          </div>
         </div>
       </div>
       <button id="create" class="btn">Create</button>
