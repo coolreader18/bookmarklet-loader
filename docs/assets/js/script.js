@@ -6,11 +6,11 @@ if (qs.script) {
   $("#user").show();
 } else {
   $("input[name=method]:radio").change(e => {
-    $("label[for='url']").text(this.value);
+    $("label[for=script]").text(e.currentTarget.value);
   }).change();
   $("#dev").show();
   $("#create").click(function() {
-    $("#result").text(`https://coolreader18.github.io/bookmarklet?name=${$("#name").val()}&script=${$("#script").val()}&github`);
+    $("#result").attr("href",`https://coolreader18.github.io/bookmarklet?name=${$("#name").val()}&script=${$("#script").val()}&github`).text(`Link to ${$("#name").val()}`);
   });
 }
 
