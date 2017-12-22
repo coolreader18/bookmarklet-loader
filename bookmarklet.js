@@ -111,7 +111,7 @@ BMLoader.processScript = async function(scripttext) {
   if (parsed.bookmarklet) {
     var namespace = BMLoader.scripts[meta.name] = BMLoader.scripts[meta.name] || parsed;
     namespace.clicks = namespace.clicks + 1 || 0;
-    eval("(function(){" + code + "})").apply(namespace);
+    eval("(function(){" + code + "})").bind(namespace)();
   } else {
     eval(code);
   }
