@@ -10,7 +10,7 @@ if (qs.script) {
   }).change();
   $("#dev").show();
   $("#create").click(function() {
-    $("#result").text(`https://coolreader18.github.io/bookmarklet?name=${$("#name").text()}&script=${$("#url").text()}&github`);
+    $("#result").text(`https://coolreader18.github.io/bookmarklet?name=${$("#name").val()}&script=${$("#script").val()}&github`);
   });
 }
 
