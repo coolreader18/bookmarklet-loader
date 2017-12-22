@@ -4,7 +4,10 @@
 #user, #dev {
   display: none;
 }
-#user {
-  text-align: center;
+#user, #main {
+  height: 100%;
   width: 100%;
+}
+#user {
+  font-size: 32px;
 }
