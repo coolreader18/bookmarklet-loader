@@ -1,0 +1,10 @@
+* {
+  font-family: 'Noto Sans', sans-serif;
+}
+#user, #dev {
+  display: none;
+}
+#user {
+  text-align: center;
+  width: 100%;
+}
