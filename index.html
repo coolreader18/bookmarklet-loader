@@ -1,36 +1,37 @@
+---
+---
 <html>
 <head>
   <title>Bookmarklet</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <link rel="stylesheet" href="assets/css/materialize.css">
   <link href="assets/css/style.css" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 <body>
-  <div id='main' class='valign-wrapper center-align'>
+  <div id='main' class='valign-wrapper center-align container'>
     <p id="user">Drag this to your bookmarks bar: <a id="bookmarklet-link"></a></p>
     <div id="dev">
       <h2>Bookmarklets</h2>
       <a href='https://github.com/coolreader18/bookmarklet-loader/'>What is this?</a>
-      <p>
+      <br>
+      <p class="container">
         So you've made a bookmarklet for the bookmarklet loader. Cool! Now, how to distribute it? Well, with this website!
         Simply put in the information, and get out a url that you can link people to!
       </p>
       <div class="row">
         <div class="col s2">
+          {%- for method in site.data.methods -%}
           <p class="left">
-            <input name="method" type="radio" id="github" value="github" data-function="loadGithub" data-type="GitHub URL" class="with-gap" checked/>
-            <label for="github">GitHub</label>
+            <input name="method" type="radio" id="{{ method.id }}" value="{{ method.id }}" data-function="{{ method.function }}" data-type="{{ method.type }}" data-placeholder="{{ method.placeholder }}" class="with-gap"{%- if method.checked -%} checked{%- endif -%}/>
+            <label for="{{ method.id }}">{{ method.label }}</label>
           </p>
-          <p class="left">
-            <input name="method" type="radio" id="url" value="url" data-function="loadBookmarklet" data-type="URL" class="with-gap"/>
-            <label for="url">Normal URL</label>
-          </p>
+          {%- endfor -%}
         </div>
         <div class="col s10">
           <div class="input-field">
-            <input id="name" type="text" class="tooltipped" data-position="bottom" data-tooltip="This is the name that users would see on the bookmarklet">
+            <input id="name" type="text" class="tooltipped" data-position="bottom" data-tooltip="This is the name that users would see on the bookmarklet" data-delay="1000">
             <label for="name">Name</label>
           </div>
           <div class="input-field">
@@ -41,11 +42,11 @@
       </div>
       <button id="create" class="btn">Create</button>
       <br>
-      <a class="btn-flat" id="result"></a>
+      <p id="result">Link to: <a id="res-link"/></p>
     </div>
   </div>
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="assets/js/materialize.min.js"></script>
   <script src="https://wzrd.in/standalone/query-string"></script>
   <script src="assets/js/script.js"></script>
 </body>
