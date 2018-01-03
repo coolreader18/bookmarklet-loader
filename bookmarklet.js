@@ -49,7 +49,7 @@ BMLoader = {
                   options[k] = v;
                 }
               } else {
-                warn('ignoring invalid metadata option: `' + k + '`');
+                warn(`ignoring invalid metadata option: \`${k}\``);
               }
             }
           }
@@ -71,13 +71,15 @@ BMLoader = {
     };
   },
   loadBookmarklet: function(script) {
-    return fetch(script).then(function(response) {
+    return fetch(script)
+    .then(response => {
       if (response.ok) {
-        return response.text().then(BMLoader.processScript)
-      } else if (xmlhttp.status == 400) {
-        alert("Couldn't load the bookmarklet");
+        return response.text()
+      } else {
+        throw new Error("Couldn't load the bookmarklet");
       }
-    });
+    }).then(BMLoader.processScript)
+    .catch(alert);
   },
   processScript: async function(scripttext) {
     var parsed = BMLoader.parseFile(scripttext),
@@ -107,7 +109,7 @@ BMLoader = {
     if (parsed.bookmarklet) {
       var namespace = BMLoader.scripts[meta.name] = BMLoader.scripts[meta.name] || parsed;
       namespace.clicks = namespace.clicks + 1 || 0;
-      eval("(function(){" + code + "})").call(namespace);
+      eval(`(function(){${code}})`).call(namespace);
     } else {
       eval(code);
     }
@@ -117,15 +119,15 @@ BMLoader = {
     var filearr = file.split("/"),
     slug = filearr.slice(0, 2).join("/"),
     filepath = filearr.slice(2).join("/");
-    return fetch("https://api.github.com/repos/" + slug + "/releases/latest")
+    return fetch(`https://api.github.com/repos/${slug}/releases/latest`)
     .then(response => {
       if (response.ok) {
-        response.json().then(release => {
-          BMLoader.loadBookmarklet("https://cdn.rawgit.com/" + slug + "/" + release.tag_name + "/" + filepath);
-        });
+        return response.json();
       } else {
-        alert("Couldn't connect to GitHub");
+        throw new Error("Couldn't connect to GitHub");
       }
-    });
+    }).then(release => {
+      BMLoader.loadBookmarklet(`https://cdn.rawgit.com/${slug}/${release.tag_name}/${filepath}`);
+    }).catch(alert)
   }
 };
