@@ -1,8 +1,11 @@
-var qs = queryString.parse(location.search);
+var qs = {};
+new URL(location.href).searchParams.entries().forEach( => {
+  qs[pair[0]] = pair[1];
+});
 if (qs.name && qs.method && qs.script) {
   $("#bookmarklet-link")
-    .text(qs.name || "bookmarklet")
-    .attr("href", "javascript:" + encodeURIComponent(`(function(){if(!window.BMLoader){var s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/v1.1.2/bookmarklet.min.js";s.onload=c;document.body.append(s)}else{c()}function c(){BMLoader.${qs.method}("${qs.script}");}})()`));
+    .text(qs.name)
+    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${qs.method}("${qs.script}")};if(!window.BMLoader){let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/v1.1.2/bookmarklet.min.js";s.onload=c;document.body.append(s)}else{c()}}`)}`);
   $("#user").show();
 } else {
   $("input[name=method]:radio").change(e => {
@@ -10,7 +13,7 @@ if (qs.name && qs.method && qs.script) {
     $("label[for=script]").text(checked.data("type"));
     $("#script").attr("placeholder", checked.data("placeholder"))
   }).change();
-  $("#dev").show();
+  $("#dev").show
   $("#create").click(function() {
     $("#res-link").text($("#name").val()).attr("href",`https://coolreader18.github.io/bookmarklet-loader?name=${encodeURIComponent($("#name").val())}&script=${encodeURIComponent($("#script").val())}&method=${$("input[name=method]:radio:checked").data("function")}`).attr("target","bmlinktest");
     $("#result").show();
