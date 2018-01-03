@@ -1,6 +1,6 @@
 BMLoader = {
   scripts: {},
-  parseFile: function(data) {
+  parseFile: (data, providedmd) => {
     var inMetadataBlock = false,
     openMetadata = '==Bookmarklet==',
     closeMetadata = '==/Bookmarklet==',
@@ -15,15 +15,14 @@ BMLoader = {
       url: '',
       license: '',
       script: [],
-      style: [],
-      init: []
+      style: []
     },
     options = {},
     code = [],
     errors = [],
-    bookmarklet = false;
+    bookmarklet = providedmd;
 
-    data.match(/[^\r\n]+/g).forEach(function(line, i, lines) {
+    data.match(/[^\r\n]+/g).forEach((line, i, lines) => {
       if (rComment.test(line)) {
         var comment = line.replace(rComment, '').trim(),
         canonicalComment = comment.toLowerCase().replace(/\s+/g, '');
@@ -64,13 +63,13 @@ BMLoader = {
       }
     });
     return {
-      metadata: options,
+      metadata: Object.assign(options, providedmd),
       code: code.join('\n'),
       errors: errors.length ? errors : null,
       bookmarklet: bookmarklet
     };
   },
-  loadBookmarklet: function(script) {
+  loadBookmarklet: (script, md) => {
     return fetch(script)
     .then(response => {
       if (response.ok) {
@@ -78,56 +77,76 @@ BMLoader = {
       } else {
         throw new Error("Couldn't load the bookmarklet");
       }
-    }).then(BMLoader.processScript)
+    }).then(js => {BMLoader.processScript(js, md)})
     .catch(alert);
   },
-  processScript: async function(scripttext) {
-    var parsed = BMLoader.parseFile(scripttext),
+  parseGithub: file => {
+    var filearr = file.split("/");
+    return {
+      slug: filearr.slice(0, 2).join("/"),
+      filepath: filearr.slice(2).join("/")
+    }
+  },
+  getGithub: file => {
+    var parsed = BMLoader.parseGithub(file);
+    return fetch(`https://api.github.com/repos/${parsed.slug}/releases/latest`)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+        .then(json => `https://cdn.rawgit.com/${parsed.slug}/${json.tag_name}/${parsed.filepath}`);
+      } else {
+        throw new Error("Couldn't connect to GitHub");
+      }
+    }).catch(alert)
+  },
+  processScript: async (scripttext, providedmd) => {
+    var parsed = BMLoader.parseFile(scripttext, providedmd),
     meta = parsed.metadata,
     code = parsed.code,
-    waitScript = new Promise(async function(resolveAll) {
+    waitScript = new Promise(async resolveAll => {
       if (!meta.script) {
         resolveAll()
       } else {
-        meta.script.forEach(async function(cur, i, scripts) {
-          await BMLoader.loadBookmarklet(cur);
+        meta.script.forEach(async (cur, i, scripts) => {
+          var toload = cur,
+          split = cur.split(" ");
+          if (split[0] == "depend") {
+            await getGithub("coolreader18/bookmarklet-loader/depend-dir.min.json")
+            .then(dirurl => fetch(dirurl)).json().then(dir => {
+              var script = dir[split[1].toLowerCase()];
+              toload = script.url.replace(/%version/, split[2] || script.latest);
+              md = script.md;
+            });
+          }
+          await BMLoader.loadBookmarklet(toload, md);
           if (i == scripts.length - 1) {
             resolveAll();
           }
-        })
+        });
       }
     });
     if (meta.style) {
-      meta.style.forEach(function(cur) {
+      meta.style.forEach(cur => {
         var l = document.createElement("link");
         l.rel = "stylesheet";
         l.href = cur;
         document.head.append(l);
       })
     }
+    Object.assign(parsed, providedmd);
     await waitScript;
     if (parsed.bookmarklet) {
       var namespace = BMLoader.scripts[meta.name] = BMLoader.scripts[meta.name] || parsed;
       namespace.clicks = namespace.clicks + 1 || 0;
-      eval(`(function(){${code}})`).call(namespace);
+      eval(`(() => {${code}})`).call(namespace);
     } else {
       eval(code);
     }
     return;
   },
-  loadGithub: function(file) {
-    var filearr = file.split("/"),
-    slug = filearr.slice(0, 2).join("/"),
-    filepath = filearr.slice(2).join("/");
-    return fetch(`https://api.github.com/repos/${slug}/releases/latest`)
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error("Couldn't connect to GitHub");
-      }
-    }).then(release => {
-      BMLoader.loadBookmarklet(`https://cdn.rawgit.com/${slug}/${release.tag_name}/${filepath}`);
-    }).catch(alert)
+  loadGithub: file => {
+    BMLoader.getGithub(file).then(latest =>
+      BMLoader.loadBookmarklet(latest)
+    )
   }
 };
