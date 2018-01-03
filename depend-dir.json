@@ -1,0 +1,14 @@
+{
+  "jquery": {
+    "url": "https://ajax.googleapis.com/ajax/libs/jquery/%version/jquery.min.js",
+    "latest": "3.2.1",
+    "md": {
+      "name": "jQuery",
+      "author": "jQuery Team",
+      "description": "jQuery JavaScript Library",
+      "repository": "jquery/jquery",
+      "url": "https://jquery.org",
+      "license": "MIT/JS Foundation"
+    }
+  }
+}
