@@ -20,7 +20,7 @@ BMLoader = {
     options = {},
     code = [],
     errors = [],
-    bookmarklet = providedmd;
+    bookmarklet = false;
 
     data.match(/[^\r\n]+/g).forEach((line, i, lines) => {
       if (rComment.test(line)) {
@@ -112,7 +112,7 @@ BMLoader = {
           split = cur.split(" "),
           md;
           if (split[0] == "dir") {
-            await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir.min.json")
+            await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir-scripts.min.json")
             .then(dirurl => fetch(dirurl)).then(unpdir => unpdir.json()).then(dir => {
               var script = dir[split[1].toLowerCase()];
               toload = script.url.replace(/%version/, split[2] || script.latest);
@@ -127,10 +127,19 @@ BMLoader = {
       }
     });
     if (meta.style) {
-      meta.style.forEach(cur => {
-        var l = document.createElement("link");
+      meta.style.forEach(async cur => {
+        var toload = cur,
+        split = cur.split(" "),
+        l = document.createElement("link");
         l.rel = "stylesheet";
-        l.href = cur;
+        l.href = toload;
+        if (split[0] == "dir") {
+          await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir-styles.min.json")
+          .then(dirurl => fetch(dirurl)).then(unpdir => unpdir.json()).then(dir => {
+            var style = dir[split[1].toLowerCase()];
+            toload = style.url.replace(/%version/, split[2] || style.latest);
+          });
+        }
         document.head.append(l);
       })
     }
