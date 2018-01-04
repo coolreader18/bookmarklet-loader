@@ -69,36 +69,6 @@ BMLoader = {
       bookmarklet: bookmarklet
     };
   },
-  loadBookmarklet: (script, md) => {
-    return fetch(script)
-    .then(response => {
-      if (response.ok) {
-        return response.text()
-      } else {
-        throw new Error("Couldn't load the bookmarklet");
-      }
-    }).then(js => {BMLoader.processScript(js, md)})
-    .catch(alert);
-  },
-  parseGithub: file => {
-    var filearr = file.split("/");
-    return {
-      slug: filearr.slice(0, 2).join("/"),
-      filepath: filearr.slice(2).join("/")
-    }
-  },
-  getGithub: file => {
-    var parsed = BMLoader.parseGithub(file);
-    return fetch(`https://api.github.com/repos/${parsed.slug}/releases/latest`)
-    .then(response => {
-      if (response.ok) {
-        return response.json()
-        .then(json => `https://cdn.rawgit.com/${parsed.slug}/${json.tag_name}/${parsed.filepath}`);
-      } else {
-        throw new Error("Couldn't connect to GitHub");
-      }
-    }).catch(alert)
-  },
   processScript: async (scripttext, providedmd) => {
     var parsed = BMLoader.parseFile(scripttext, providedmd),
     meta = parsed.metadata,
@@ -153,6 +123,36 @@ BMLoader = {
       eval(code);
     }
     return;
+  },
+  loadBookmarklet: (script, md) => {
+    return fetch(script)
+    .then(response => {
+      if (response.ok) {
+        return response.text()
+      } else {
+        throw new Error("Couldn't load the bookmarklet");
+      }
+    }).then(js => {BMLoader.processScript(js, md)})
+    .catch(alert);
+  },
+  parseGithub: file => {
+    var filearr = file.split("/");
+    return {
+      slug: filearr.slice(0, 2).join("/"),
+      filepath: filearr.slice(2).join("/")
+    }
+  },
+  getGithub: file => {
+    var parsed = BMLoader.parseGithub(file);
+    return fetch(`https://api.github.com/repos/${parsed.slug}/releases/latest`)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+        .then(json => `https://cdn.rawgit.com/${parsed.slug}/${json.tag_name}/${parsed.filepath}`);
+      } else {
+        throw new Error("Couldn't connect to GitHub");
+      }
+    }).catch(alert)
   },
   loadGithub: file => {
     BMLoader.getGithub(file).then(latest =>
