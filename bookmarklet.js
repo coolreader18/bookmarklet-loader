@@ -112,7 +112,7 @@ BMLoader = {
           split = cur.split(" "),
           md;
           if (split[0] == "dir") {
-            await getGithub("coolreader18/bookmarklet-loader/depend-dir.min.json")
+            await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir.min.json")
             .then(dirurl => fetch(dirurl)).json().then(dir => {
               var script = dir[split[1].toLowerCase()];
               toload = script.url.replace(/%version/, split[2] || script.latest);
