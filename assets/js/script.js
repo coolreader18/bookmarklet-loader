@@ -5,7 +5,7 @@ new URL(location.href).searchParams.entries().forEach( => {
 if (qs.name && qs.method && qs.script) {
   $("#bookmarklet-link")
     .text(qs.name)
-    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${qs.method}("${qs.script}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/v2.0.0/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
+    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${qs.method}("${qs.script}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/v2.1.0/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
   $("#user").show();
 } else {
   $("input[name=method]:radio").change(e => {
