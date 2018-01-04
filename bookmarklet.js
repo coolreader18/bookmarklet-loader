@@ -58,8 +58,7 @@ BMLoader = {
       }
 
       if (inMetadataBlock && i + 1 == lines.length) {
-        errors.push('missing metdata block closing `' +
-        closeMetadata + '`');
+        errors.push(`missing metdata block closing \`${closeMetadata}\``);
       }
     });
     return {
