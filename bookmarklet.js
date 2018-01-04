@@ -109,7 +109,8 @@ BMLoader = {
       } else {
         meta.script.forEach(async (cur, i, scripts) => {
           var toload = cur,
-          split = cur.split(" ");
+          split = cur.split(" "),
+          md;
           if (split[0] == "dir") {
             await getGithub("coolreader18/bookmarklet-loader/depend-dir.min.json")
             .then(dirurl => fetch(dirurl)).json().then(dir => {
