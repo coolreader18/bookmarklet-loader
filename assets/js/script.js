@@ -15,16 +15,6 @@ if (qs.name && qs.method && qs.script && qs.ver) {
     $("#user").show();
   })()
 } else {
-  $.getJSON("https://api.github.com/repos/coolreader18/bookmarklet-loader/releases")
-  .done(json => {
-    $("#version").material_select("destroy");
-    var group;
-    $("#version").append(group = $("<optgroup label='Individual Versions'>"));
-    json.forEach(rel => {
-      group.append($("<option>").val(rel.tag_name).text(rel.tag_name));
-    })
-    $("#version").material_select();
-  });
   $("#method").change(e => {
     var methods = {{ site.data.methods | replace: "=>", ":" }};
     for (m of methods) {
@@ -38,6 +28,16 @@ if (qs.name && qs.method && qs.script && qs.ver) {
   }).change();
   $(() => {
     $(".select").material_select()
+    $.getJSON("https://api.github.com/repos/coolreader18/bookmarklet-loader/releases")
+    .done(json => {
+      $("#version").material_select("destroy");
+      var group;
+      $("#version").append(group = $("<optgroup label='Individual Versions'>"));
+      json.forEach(rel => {
+        group.append($("<option>").val(rel.tag_name).text(rel.tag_name));
+      })
+      $("#version").material_select();
+    });
   })
   $("#dev").show()
   $("#create").click(function() {

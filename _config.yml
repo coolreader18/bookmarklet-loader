@@ -1,5 +1,1 @@
-include: ["/assets/"]
-atom:
-  buildCommand:
-    - jekyll
-    - build
+include: ["/assets/", "/favicon.png"]
