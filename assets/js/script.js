@@ -13,7 +13,7 @@ if (qs.name && qs.method && qs.script) {
     $("label[for=script]").text(checked.data("type"));
     $("#script").attr("placeholder", checked.data("placeholder"))
   }).change();
-  $("#dev").show
+  $("#dev").show()
   $("#create").click(function() {
     $("#res-link").text($("#name").val()).attr("href",`https://coolreader18.github.io/bookmarklet-loader?name=${encodeURIComponent($("#name").val())}&script=${encodeURIComponent($("#script").val())}&method=${$("input[name=method]:radio:checked").data("function")}`).attr("target","bmlinktest");
     $("#result").show();
