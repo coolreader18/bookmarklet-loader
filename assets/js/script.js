@@ -1,5 +1,5 @@
 var qs = {};
-new URL(location.href).searchParams.entries().forEach( => {
+new URL(location.href).searchParams.entries().forEach(() => {
   qs[pair[0]] = pair[1];
 });
 if (qs.name && qs.method && qs.script) {
