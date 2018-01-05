@@ -10,9 +10,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 <body>
-  <div id='main' class='valign-wrapper center-align container'>
-    <p id="user">Drag this to your bookmarks bar: <a id="bookmarklet-link"></a></p>
-    <div id="dev">
+  <div id='main' class='valign-wrapper center-align'>
+    <p id="user" class="container">Drag this to your bookmarks bar: <a id="bookmarklet-link"></a></p>
+    <div id="dev" class="container">
       <h2>Bookmarklets</h2>
       <a href='https://github.com/coolreader18/bookmarklet-loader/'>What is this?</a>
       <br>
@@ -21,31 +21,51 @@
         Simply put in the information, and get out a url that you can link people to!
       </p>
       <div class="row">
-        <div class="col s2">
-          {%- for method in site.data.methods -%}
-          <p class="left">
-            <input name="method" type="radio" id="{{ method.id }}" value="{{ method.id }}" data-function="{{ method.function }}" data-type="{{ method.type }}" data-placeholder="{{ method.placeholder }}" class="with-gap"{%- if method.checked -%} checked{%- endif -%}/>
-            <label for="{{ method.id }}">{{ method.label }}</label>
-          </p>
-          {%- endfor -%}
+        <div class="col s10 input-field">
+          <input id="name"
+          type="text"
+          class="tooltipped validate"
+          data-position="bottom"
+          data-tooltip="This is the name that users would see on the bookmarklet"
+          data-delay="1000"
+          tabindex="1"
+          required
+          data-error="Please enter a name.">
+          <label for="name">Name</label>
         </div>
-        <div class="col s10">
-          <div class="input-field">
-            <input id="name" type="text" class="tooltipped" data-position="bottom" data-tooltip="This is the name that users would see on the bookmarklet" data-delay="1000">
-            <label for="name">Name</label>
-          </div>
-          <div class="input-field">
-            <input id="script" type="text">
-            <label for="script"></label>
-          </div>
+        <div class="col s2 input-field">
+          <select class="select" id="version" tabindex="3">
+            <option selected value="latest">Latest</option>
+          </select>
+          <label>Version:</label>
         </div>
       </div>
-      <button id="create" class="btn">Create</button>
+      <div class="row">
+        <div class="col s10 input-field">
+          <input
+          id="script"
+          type="text"
+          tabindex="2"
+          required pattern=".*?\/.*?\/.*"
+          class="validate"
+          data-error="Please enter a valid GitHub URL.">
+          <label for="script"></label>
+        </div>
+        <div class="col s2 input-field">
+          <select class="select" id="method" tabindex="4">
+            {%- for method in site.data.methods -%}
+              <option  {% if method.selected -%}  selected{%- endif -%}>{{ method.label }}</option>
+            {%- endfor -%}
+          </select>
+          <label>Method:</label>
+        </div>
+      </div>
+      <button id="create" class="btn" tabindex="5">Create</button>
       <br>
       <p id="result">Link to: <a id="res-link"/></p>
     </div>
   </div>
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="assets/js/jquery.min.js"></script>
   <script src="assets/js/materialize.min.js"></script>
   <script src="assets/js/script.js"></script>
 </body>

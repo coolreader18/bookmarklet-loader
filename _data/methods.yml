@@ -1,14 +1,12 @@
 -
   label: GitHub
-  id: github
   function: loadGithub
   type: Github URL
   placeholder: <user>/<repo>/<path>/<file>.min.js
-  checked: true
+  selected: true
 -
   label: Normal URL
-  id: url
   function: loadBookmarklet
   type: URL
   placeholder: https://website.com/<file>.min.js
-  checked: false
+  selected: false
