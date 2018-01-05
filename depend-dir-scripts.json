@@ -25,5 +25,17 @@
         "dir jquery"
       ]
     }
+  },
+  "js-cookie": {
+    "url": "https://cdn.jsdelivr.net/npm/js-cookie@%verison/src/js.cookie.min.js",
+    "latest": "2.2.0",
+    "md": {
+      "name": "JavaScript Cookie",
+      "description": "A simple, lightweight JavaScript API for handling cookies",
+      "repository": "js-cookie/js-cookie",
+      "author": "Klaus Hartl, Fagner Brack",
+      "url": "https://github.com/js-cookie/js-cookie",
+      "license": "MIT"
+    }
   }
 }
