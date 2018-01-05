@@ -6,14 +6,14 @@ Look at [mrcoles/bookmarklet](https://github.com/mrcoles/bookmarklet), use that 
 Example of how you'd use this:
 ```javascript
 {
-  let c=()=>{
+  let c = () => {
     BMLoader.loadGithub("<name>/<repo>/<path or whatever>/<file>.min.js")
   }
   if (window.BMLoader) {
     c()
   } else {
     let s = document.createElement("script");
-    s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/v2.0.0/bookmarklet.min.js";
+    s.src = "https://cdn.rawgit.com/coolreader18/bookmarklet-loader/v2.0.0/bookmarklet.min.js";
     document.body.append(s);
     s.onload = c
   }
