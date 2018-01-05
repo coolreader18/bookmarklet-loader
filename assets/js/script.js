@@ -1,7 +1,7 @@
 var qs = {};
-new URL(location.href).searchParams.entries().forEach(() => {
+for (let pair in new URL(location.href).searchParams.entries()) {
   qs[pair[0]] = pair[1];
-});
+};
 if (qs.name && qs.method && qs.script) {
   $("#bookmarklet-link")
     .text(qs.name)
