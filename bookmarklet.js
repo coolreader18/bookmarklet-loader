@@ -64,25 +64,31 @@ BMLoader = {
       bookmarklet: bookmarklet
     };
   },
-  processScript: async (scripttext, providedmd) => {
+  processScript: (scripttext, providedmd) => new Promise(async resolve => {
     var parsed = BMLoader.parseFile(scripttext, providedmd), meta = parsed.metadata, code = parsed.code, waitScript = new Promise(async resolveAll => {
       if (!meta.script) {
         resolveAll();
       } else {
-        meta.script.forEach(async (cur, i, scripts) => {
-          var toload = cur, split = cur.split(" "), md;
+        let scripts = meta.script;
+        for (var i = 0; i < scripts.length; i++) {
+          let toload = scripts[i], split = toload.split(" "), md;
           if (split[0] == "dir") {
-            await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir-scripts.min.json").then(dirurl => fetch(dirurl)).then(unpdir => unpdir.json()).then(dir => {
+            await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir-scripts.min.json")
+            .then(dirurl => {
+              return fetch(dirurl);})
+            .then(unpdir => unpdir.json())
+            .then(dir => {
               var script = dir[split[1].toLowerCase()];
               toload = script.url.replace(/%version/, split[2] || script.latest);
               md = script.md;
             });
           }
+          debugger;
           await BMLoader.loadBookmarklet(toload, md);
           if (i == scripts.length - 1) {
             resolveAll();
           }
-        });
+        };
       }
     });
     if (meta.style) {
@@ -91,7 +97,9 @@ BMLoader = {
         l.rel = "stylesheet";
         l.href = toload;
         if (split[0] == "dir") {
-          await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir-styles.min.json").then(dirurl => fetch(dirurl)).then(unpdir => unpdir.json()).then(dir => {
+          await BMLoader.getGithub("coolreader18/bookmarklet-loader/depend-dir-styles.min.json")
+          .then(dirurl => fetch(dirurl))
+          .then(unpdir => unpdir.json()).then(dir => {
             var style = dir[split[1].toLowerCase()];
             toload = style.url.replace(/%version/, split[2] || style.latest);
           });
@@ -108,19 +116,20 @@ BMLoader = {
     } else {
       eval(code);
     }
-    return;
-  },
-  loadBookmarklet: (script, md) => {
-    return fetch(script).then(response => {
+    debugger;
+    resolve();
+  }),
+  loadBookmarklet: (script, md) =>
+    fetch(script).then(response => {
       if (response.ok) {
         return response.text();
       } else {
         throw new Error("Couldn't load the bookmarklet");
       }
-    }).then(js => {
-      BMLoader.processScript(js, md);
-    }).catch(alert);
-  },
+    }).then(js =>
+      BMLoader.processScript(js, md)
+    ).catch(alert)
+  ,
   parseGithub: file => {
     var filearr = file.split("/");
     return {
@@ -138,7 +147,5 @@ BMLoader = {
       }
     }).catch(alert);
   },
-  loadGithub: file => {
-    BMLoader.getGithub(file).then(latest => BMLoader.loadBookmarklet(latest));
-  }
+  loadGithub: file => BMLoader.getGithub(file).then(latest => BMLoader.loadBookmarklet(latest))
 };
