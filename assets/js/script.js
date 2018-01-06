@@ -10,7 +10,7 @@ if (qs.name && qs.method && qs.script) {
       qs.ver = (await $.getJSON("https://api.github.com/repos/coolreader18/bookmarklet-loader/releases/latest")).tag_name
     }
     $("#bookmarklet-link")
-    .text(qs.name)
+    .text(decodeURIComponent(qs.name))
     .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${qs.method}("${qs.script}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/${qs.ver}/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
     $("#user").show();
   })()
@@ -48,7 +48,7 @@ if (qs.name && qs.method && qs.script) {
       params.set("script", encodeURIComponent($("#script").val()));
       params.set("method", curmethod.function);
       params.set("ver", $("#version").val());
-      $("#res-link").text(encodeURIComponent($("#name").val())).attr("href", '?' + params.toString()).attr("target","bmlinktest");
+      $("#res-link").text($("#name").val()).attr("href", '?' + params.toString()).attr("target","bmlinktest");
       $("#result").show();
     }
   });
