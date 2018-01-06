@@ -83,7 +83,6 @@ BMLoader = {
               md = script.md;
             });
           }
-          debugger;
           await BMLoader.loadBookmarklet(toload, md);
           if (i == scripts.length - 1) {
             resolveAll();
@@ -116,7 +115,6 @@ BMLoader = {
     } else {
       eval(code);
     }
-    debugger;
     resolve();
   }),
   loadBookmarklet: (script, md) =>
