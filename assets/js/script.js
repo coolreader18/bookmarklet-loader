@@ -9,9 +9,10 @@ if (qs.name && qs.method && qs.script) {
     if (qs.ver == 'latest' || !qs.ver) {
       qs.ver = (await $.getJSON("https://api.github.com/repos/coolreader18/bookmarklet-loader/releases/latest")).tag_name
     }
+    var dec = decodeURIComponent;
     $("#bookmarklet-link")
-    .text(decodeURIComponent(qs.name))
-    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${qs.method}("${qs.script}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/${qs.ver}/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
+    .text(dec(qs.name))
+    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${dec(qs.method)}("${dec(qs.script)}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/${dec(qs.ver)}/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
     $("#user").show();
   })()
 } else {
