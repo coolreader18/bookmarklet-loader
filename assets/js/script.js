@@ -4,9 +4,9 @@ var qs = {};
 for (pair of new URL(location.href).searchParams.entries()) {
   qs[pair[0]] = pair[1];
 };
-if (qs.name && qs.method && qs.script && qs.ver) {
+if (qs.name && qs.method && qs.script) {
   (async () => {
-    if (qs.ver == 'latest') {
+    if (qs.ver == 'latest' || !qs.ver) {
       qs.ver = (await $.getJSON("https://api.github.com/repos/coolreader18/bookmarklet-loader/releases/latest")).tag_name
     }
     $("#bookmarklet-link")
