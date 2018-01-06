@@ -1,4 +1,5 @@
 BMLoader = {
+  version: "v2.1.2", //CHANGE WITH EACH RELEASE
   scripts: {},
   parseFile: (data, providedmd) => {
     var inMetadataBlock = false,
