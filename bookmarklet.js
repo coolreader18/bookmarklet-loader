@@ -1,7 +1,11 @@
 BMLoader = {
   scripts: {},
   parseFile: (data, providedmd) => {
-    var inMetadataBlock = false, openMetadata = "==Bookmarklet==", closeMetadata = "==/Bookmarklet==", rComment = /^(\s*\/\/\s*)/, md = {
+    var inMetadataBlock = false,
+    openMetadata = "==Bookmarklet==",
+    closeMetadata = "==/Bookmarklet==",
+    rComment = /^(\s*\/\/\s*)/,
+    md = {
       name: "",
       version: "",
       description: "",
@@ -12,7 +16,11 @@ BMLoader = {
       license: "",
       script: [],
       style: []
-    }, options = {}, code = [], errors = [], bookmarklet = false;
+    },
+    options = {},
+    code = [],
+    errors = [],
+    bookmarklet = false;
     data.match(/[^\r\n]+/g).forEach((line, i, lines) => {
       if (rComment.test(line)) {
         var comment = line.replace(rComment, "").trim(), canonicalComment = comment.toLowerCase().replace(/\s+/g, "");
