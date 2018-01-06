@@ -9,10 +9,9 @@ if (qs.name && qs.method && qs.script) {
     if (qs.ver == 'latest' || !qs.ver) {
       qs.ver = (await $.getJSON("https://api.github.com/repos/coolreader18/bookmarklet-loader/releases/latest")).tag_name
     }
-    var dec = decodeURIComponent;
     $("#bookmarklet-link")
-    .text(dec(qs.name))
-    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${dec(qs.method)}("${dec(qs.script)}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/${dec(qs.ver)}/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
+    .text(qs.name)
+    .attr("href", `javascript:${encodeURIComponent(`{let c=()=>{BMLoader.${qs.method}("${qs.script}")};if(window.BMLoader){c()}else{let s=document.createElement("script");s.src="https://cdn.rawgit.com/coolreader18/bookmarklet-loader/${qs.ver}/bookmarklet.min.js";document.body.append(s);s.onload=c}}`)}`);
     $("#user").show();
   })()
 } else {
@@ -45,8 +44,8 @@ if (qs.name && qs.method && qs.script) {
     if ($("#name:valid").length && $("#script:valid").length) {
       var url = new URL("https://coolreader18.github.io/bookmarklet-loader"),
       params = url.searchParams;
-      params.set("name", encodeURIComponent($("#name").val()));
-      params.set("script", encodeURIComponent($("#script").val()));
+      params.set("name", $("#name").val());
+      params.set("script", $("#script").val());
       params.set("method", curmethod.function);
       params.set("ver", $("#version").val());
       $("#res-link").text($("#name").val()).attr("href", '?' + params.toString()).attr("target","bmlinktest");
