@@ -27,7 +27,7 @@
     }
   },
   "js-cookie": {
-    "url": "https://cdn.jsdelivr.net/npm/js-cookie@%verison/src/js.cookie.min.js",
+    "url": "https://cdn.jsdelivr.net/npm/js-cookie@%version/src/js.cookie.min.js",
     "latest": "2.2.0",
     "md": {
       "name": "JavaScript Cookie",
