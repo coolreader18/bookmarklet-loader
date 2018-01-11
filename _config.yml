@@ -1,1 +1,2 @@
-include: ["/assets/", "/favicon.png"]
+include:
+  - assets/
