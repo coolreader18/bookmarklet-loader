@@ -1,0 +1,1 @@
+cmd: uglifyjs bookmarklet.js -o bookmarklet.min.js --mangle && json-minify depend-dir-scripts.json > depend-dir-scripts.min.json && json-minify depend-dir-styles.json > depend-dir-styles.min.json

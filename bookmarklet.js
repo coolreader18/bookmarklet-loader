@@ -1,11 +1,20 @@
 BMLoader = {
-  version: "v2.1.2", //CHANGE WITH EACH RELEASE
+  version: "v2.2.0", //CHANGE WITH EACH RELEASE
   scripts: {},
   parseFile: (data, providedmd) => {
-    var inMetadataBlock = false,
+    var inBlock = {
+      md: false,
+      multi: false
+    },
     openMetadata = "==Bookmarklet==",
     closeMetadata = "==/Bookmarklet==",
-    rComment = /^(\s*\/\/\s*)/,
+    cmt = {
+      cmt: /^(\s*\/\/\s*)/,
+      multi: {
+        start: /^(\s*\/\*\s*@bookmarklet\s*)/i,
+        end: /^\s*\*\//
+      }
+    },
     md = {
       name: "",
       version: "",
@@ -21,39 +30,50 @@ BMLoader = {
     options = {},
     code = [],
     errors = [],
-    bookmarklet = false;
+    bookmarklet = false,
+    processCmt = comment => {
+      var match = comment.match(/@([^\s]+)\s+(.*)$/);
+      if (match) {
+        var key = match[1],
+        value = match[2];
+        if (key) {
+          if (Array.isArray(md[key])) {
+            options[key] = options[key] || [];
+            options[key].push(value);
+          } else {
+            options[key] = value;
+          }
+        } else {
+          warn(`ignoring invalid metadata option: \`${k}\``);
+        }
+      }
+    };
     data.match(/[^\r\n]+/g).forEach((line, i, lines) => {
-      if (rComment.test(line)) {
-        var comment = line.replace(rComment, "").trim(), canonicalComment = comment.toLowerCase().replace(/\s+/g, "");
-        if (!inMetadataBlock) {
+      if (cmt.cmt.test(line)) {
+        var comment = line.replace(cmt.cmt, "").trim(),
+        canonicalComment = comment.toLowerCase().replace(/\s+/g, "");
+        if (!inBlock.md) {
           if (canonicalComment == openMetadata.toLowerCase()) {
-            inMetadataBlock = true;
+            inBlock.md = true;
             bookmarklet = true;
           }
         } else {
           if (canonicalComment == closeMetadata.toLowerCase()) {
-            inMetadataBlock = false;
+            inBlock.md = false;
           } else {
-            var m = comment.match(/^@([^\s]+)\s+(.*)$/);
-            if (m) {
-              var k = m[1], v = m[2];
-              if (k) {
-                if (Array.isArray(md[k])) {
-                  options[k] = options[k] || [];
-                  options[k].push(v);
-                } else {
-                  options[k] = v;
-                }
-              } else {
-                warn(`ignoring invalid metadata option: \`${k}\``);
-              }
-            }
+            processCmt(comment);
           }
         }
+      } else if (inBlock.multi) {
+        processCmt(line);
+      } else if (cmt.multi.start.test(line)) {
+        inBlock.multi = true;
+      } else if (cmt.multi.end.test(line)) {
+        inBlock.multi = false;
       } else {
         code.push(line);
       }
-      if (inMetadataBlock && i + 1 == lines.length) {
+      if (inBlock.md && i + 1 == lines.length) {
         errors.push(`missing metdata block closing \`${closeMetadata}\``);
       }
     });
