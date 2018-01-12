@@ -1,5 +1,5 @@
 BMLoader = {
-  version: "v2.2.0", //CHANGE WITH EACH RELEASE
+  version: "v2.2.1", //CHANGE WITH EACH RELEASE
   scripts: {},
   parseFile: (data, providedmd) => {
     var inBlock = {
@@ -20,7 +20,7 @@ BMLoader = {
       version: "",
       description: "",
       repository: "",
-      author: "",
+      author: [],
       email: "",
       url: "",
       license: "",
