@@ -169,18 +169,12 @@ window.BMLoader = {
     get loadBookmarklet() {
       return BMLoader.loadScript
     },
-    parseGithub(file) {
-      var filearr = file.split("/");
-      return {
-        slug: filearr.slice(0, 2).join("/"),
-        filepath: filearr.slice(2).join("/")
-      };
-    },
     getGithub(file) {
-      var parsed = this.parseGithub(file);
-      return fetch(`https://api.github.com/repos/${parsed.slug}/releases/latest`).then(response => {
+      var filearr = file.split("/"),
+      slug = filearr.slice(0, 2).join("/");
+      return fetch(`https://api.github.com/repos/${slug}/releases/latest`).then(response => {
         if (response.ok) {
-          return response.json().then(json => `https://cdn.rawgit.com/${parsed.slug}/${json.tag_name}/${parsed.filepath}`);
+          return response.json().then(json => `https://cdn.rawgit.com/${slug}/${json.tag_name}/${filearr.slice(2).join("/")}`);
         } else {
           throw new Error("Couldn't connect to GitHub");
         }
