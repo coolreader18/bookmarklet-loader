@@ -1,5 +1,5 @@
 window.BMLoader = {
-  version: "v2.2.1", //CHANGE WITH EACH RELEASE
+  version: "v2.2.2", //CHANGE WITH EACH RELEASE
   scripts: {},
   parseScript(data, providedmd) {
     var inBlock = {
