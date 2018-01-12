@@ -13,6 +13,10 @@ BMLoader = {
       multi: {
         start: /^(\s*\/\*\s*@bookmarklet\s*)/i,
         end: /^\s*\*\//
+      },
+      single: {
+        start: /\s*@bookmarklet\s*/,
+        match: /\s*@[^@]*/g
       }
     },
     md = {
@@ -32,7 +36,7 @@ BMLoader = {
     errors = [],
     bookmarklet = false,
     processCmt = comment => {
-      var match = comment.match(/@([^\s]+)\s+(.*)$/);
+      var match = comment.trim().match(/@([^\s]+)\s+(.*)$/);
       if (match) {
         var key = match[1],
         value = match[2];
@@ -44,7 +48,7 @@ BMLoader = {
             options[key] = value;
           }
         } else {
-          warn(`ignoring invalid metadata option: \`${k}\``);
+          console.warn(`ignoring invalid metadata option: \`${key}\``);
         }
       }
     };
@@ -56,6 +60,11 @@ BMLoader = {
           if (canonicalComment == openMetadata.toLowerCase()) {
             inBlock.md = true;
             bookmarklet = true;
+          } else if (cmt.single.start.test(comment)) {
+            comment.replace(cmt.single.start, "");
+            for (var m = cmt.single.match.exec(comment); m; m = cmt.single.match.exec(comment)) {
+              processCmt(m[0]);
+            }
           }
         } else {
           if (canonicalComment == closeMetadata.toLowerCase()) {
@@ -68,6 +77,7 @@ BMLoader = {
         processCmt(line);
       } else if (cmt.multi.start.test(line)) {
         inBlock.multi = true;
+        bookmarklet = true;
       } else if (cmt.multi.end.test(line)) {
         inBlock.multi = false;
       } else {
@@ -85,7 +95,10 @@ BMLoader = {
     };
   },
   processScript: (scripttext, providedmd) => new Promise(async resolve => {
-    var parsed = BMLoader.parseFile(scripttext, providedmd), meta = parsed.metadata, code = parsed.code, waitScript = new Promise(async resolveAll => {
+    var parsed = BMLoader.parseFile(scripttext, providedmd),
+    meta = parsed.metadata,
+    code = parsed.code,
+    waitScript = new Promise(async resolveAll => {
       if (!meta.script) {
         resolveAll();
       } else {
@@ -126,10 +139,13 @@ BMLoader = {
         document.head.append(l);
       });
     }
-    Object.assign(parsed, providedmd);
+    Object.assign(parsed.metadata, providedmd);
     await waitScript;
+    var namespace;
+    if (parsed.metadata.name) {
+      namespace = BMLoader.scripts[meta.name] = BMLoader.scripts[meta.name] || parsed;
+    }
     if (parsed.bookmarklet) {
-      var namespace = BMLoader.scripts[meta.name] = BMLoader.scripts[meta.name] || parsed;
       namespace.clicks = namespace.clicks + 1 || 0;
       eval(`(function(){${code}})`).call(namespace);
     } else {
