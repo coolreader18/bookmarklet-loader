@@ -95,7 +95,7 @@ window.BMLoader = {
     };
   },
   processScript(scripttext, providedmd) {
-    new Promise(async resolve => {
+    return new Promise(async resolve => {
       var parsed = this.parseScript(scripttext, providedmd),
       meta = parsed.metadata,
       code = parsed.code,
@@ -105,82 +105,82 @@ window.BMLoader = {
         } else {
           let scripts = meta.script;
           for (var i = 0; i < scripts.length; i++) {
-            let toload = scripts[i], split = toload.split(" "), md;
+            let toload = scripts[i], split = toload.split(" "),
+            md;
             if (split[0] == "dir") {
               await this.getGithub("coolreader18/bookmarklet-loader/depend-dir-scripts.min.json")
-              .then(dirurl => {
-                return fetch(dirurl);})
-                .then(unpdir => unpdir.json())
-                .then(dir => {
-                  var script = dir[split[1].toLowerCase()];
-                  toload = script.url.replace(/%version/, split[2] || script.latest);
-                  md = script.md;
-                });
-              }
-              await this.loadScript(toload, md);
-              if (i == scripts.length - 1) {
-                resolveAll();
-              }
-            };
-          }
-        });
-        if (meta.style) {
-          meta.style.forEach(async cur => {
-            var toload = cur, split = cur.split(" "), l = document.createElement("link");
-            l.rel = "stylesheet";
-            l.href = toload;
-            if (split[0] == "dir") {
-              await this.getGithub("coolreader18/bookmarklet-loader/depend-dir-styles.min.json")
               .then(dirurl => fetch(dirurl))
-              .then(unpdir => unpdir.json()).then(dir => {
-                var style = dir[split[1].toLowerCase()];
-                toload = style.url.replace(/%version/, split[2] || style.latest);
+              .then(unpdir => unpdir.json())
+              .then(dir => {
+                var script = dir[split[1].toLowerCase()];
+                toload = script.url.replace(/%version/, split[2] || script.latest);
+                md = script.md;
               });
             }
-            document.head.append(l);
-          });
+          }
+          await this.loadScript(toload, md);
+          if (i == scripts.length - 1) {
+            resolveAll();
+          }
         }
-        Object.assign(parsed.metadata, providedmd);
-        await waitScript;
-        var namespace;
-        if (parsed.metadata.name) {
-          namespace = this.scripts[meta.name] = this.scripts[meta.name] || parsed;
-        }
-        if (parsed.bookmarklet) {
-          namespace.clicks = namespace.clicks + 1 || 0;
-          eval(`(function(){${code}})`).call(namespace);
-        } else {
-          eval(code);
-        }
-        resolve();
-      })
-    },
-    loadScript(script, md) {
-      return fetch(script).then(response => {
-        if (response.ok) {
-          return response.text();
-        } else {
-          throw new Error("Couldn't load the bookmarklet");
-        }
-      }).then(js =>
-        this.processScript(js, md)
-      ).catch(alert)
-    },
-    get loadBookmarklet() {
-      return BMLoader.loadScript
-    },
-    getGithub(file) {
-      var filearr = file.split("/"),
-      slug = filearr.slice(0, 2).join("/");
-      return fetch(`https://api.github.com/repos/${slug}/releases/latest`).then(response => {
-        if (response.ok) {
-          return response.json().then(json => `https://cdn.rawgit.com/${slug}/${json.tag_name}/${filearr.slice(2).join("/")}`);
-        } else {
-          throw new Error("Couldn't connect to GitHub");
-        }
-      }).catch(alert);
-    },
-    loadGithub(file) {
-      return this.getGithub(file).then(latest => this.loadScript(latest));
-    }
-  };
+      });
+      if (meta.style) {
+        meta.style.forEach(async cur => {
+          var toload = cur, split = cur.split(" "), l = document.createElement("link");
+          l.rel = "stylesheet";
+          l.href = toload;
+          if (split[0] == "dir") {
+            await this.getGithub("coolreader18/bookmarklet-loader/depend-dir-styles.min.json")
+            .then(dirurl => fetch(dirurl))
+            .then(unpdir => unpdir.json()).then(dir => {
+              var style = dir[split[1].toLowerCase()];
+              toload = style.url.replace(/%version/, split[2] || style.latest);
+            });
+          }
+          document.head.append(l);
+        });
+      }
+      Object.assign(parsed.metadata, providedmd);
+      await waitScript;
+      var namespace;
+      if (parsed.metadata.name) {
+        namespace = this.scripts[meta.name] = this.scripts[meta.name] || parsed;
+      }
+      if (parsed.bookmarklet) {
+        namespace.clicks = namespace.clicks + 1 || 0;
+        eval(`(function(){${code}})`).call(namespace);
+      } else {
+        eval(code);
+      }
+      resolve();
+    });
+  },
+  loadScript(script, md) {
+    return fetch(script).then(response => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        throw new Error("Couldn't load the bookmarklet");
+      }
+    }).then(js =>
+      this.processScript(js, md)
+    ).catch(alert)
+  },
+  get loadBookmarklet() {
+    return BMLoader.loadScript
+  },
+  getGithub(file) {
+    var filearr = file.split("/"),
+    slug = filearr.slice(0, 2).join("/");
+    return fetch(`https://api.github.com/repos/${slug}/releases/latest`).then(response => {
+      if (response.ok) {
+        return response.json().then(json => `https://cdn.rawgit.com/${slug}/${json.tag_name}/${filearr.slice(2).join("/")}`);
+      } else {
+        throw new Error("Couldn't connect to GitHub");
+      }
+    }).catch(alert);
+  },
+  loadGithub(file) {
+    return this.getGithub(file).then(latest => this.loadScript(latest));
+  }
+};
