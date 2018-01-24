@@ -29,21 +29,29 @@ window.BMLoader = {
       url: "",
       license: "",
       script: [],
-      style: []
+      style: [],
+      var: [],
+      async: false
     },
     options = {},
     code = [],
     errors = [],
     bookmarklet = false,
     processCmt = comment => {
-      var match = comment.trim().match(/@([^\s]+)\s+(.*)$/);
+      var match = comment.trim().match(/@([^\s]+)(?:\s+(.*))?$/);
       if (match) {
         var key = match[1],
         value = match[2];
-        if (key) {
+        if (key !== undefined) {
           if (Array.isArray(md[key])) {
             options[key] = options[key] || [];
             options[key].push(value);
+          } else if (typeof md[key] == "boolean") {
+            try {
+              options[key] = JSON.parse(value);
+            } catch (e) {
+              options[key] = true;
+            }
           } else {
             options[key] = value;
           }
@@ -83,7 +91,7 @@ window.BMLoader = {
       } else {
         code.push(line);
       }
-      if (inBlock.md && i + 1 == lines.length) {
+      if ((inBlock.md || inBlock.multi) && i + 1 == lines.length) {
         errors.push(`missing metdata block closing \`${closeMetadata}\``);
       }
     });
@@ -146,13 +154,22 @@ window.BMLoader = {
       if (parsed.metadata.name) {
         namespace = this.scripts[meta.name] = this.scripts[meta.name] || parsed;
       }
+      parsed.metadata.var = parsed.metadata.var || [];
+      parsed.metadata.var = parsed.metadata.var.reduce((obj, cur) => {
+        var split = cur.split(" ")
+        obj[split[0]] = split[1] || split[0];
+        return obj
+      }, {});
+      var module = {
+        exports: undefined
+      };
       if (parsed.bookmarklet) {
         namespace.clicks = namespace.clicks + 1 || 0;
-        eval(`(function(){${code}})`).call(namespace);
+        eval(`(${parsed.metadata.async ? "async " : ""}function(${Object.values(parsed.metadata.var).join()}){${code}})`).apply(namespace, eval(`[${Object.keys(parsed.metadata.var).join()}]`));
       } else {
         eval(code);
       }
-      resolve();
+      resolve(module.exports);
     });
   },
   loadScript(script, md) {
