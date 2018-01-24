@@ -73,13 +73,13 @@ window.BMLoader = {
             processCmt(comment);
           }
         }
+      } else if (cmt.multi.end.test(line) && inBlock.multi) {
+        inBlock.multi = false;
       } else if (inBlock.multi) {
         processCmt(line);
       } else if (cmt.multi.start.test(line)) {
         inBlock.multi = true;
         bookmarklet = true;
-      } else if (cmt.multi.end.test(line) && inBlock.multi) {
-        inBlock.multi = false;
       } else {
         code.push(line);
       }
