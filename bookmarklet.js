@@ -1,14 +1,14 @@
 window.BMLoader = {
-  version: "v2.2.3", //CHANGE WITH EACH RELEASE
+  version: "v2.2.3", // CHANGE WITH EACH RELEASE
   scripts: {},
-  parseScript(data, providedmd) {
+  parseScript(data, providedmd) { // parses the script
     var inBlock = {
       md: false,
       multi: false
     },
     openMetadata = "==Bookmarklet==",
     closeMetadata = "==/Bookmarklet==",
-    cmt = {
+    cmt = { // different comment regex's
       cmt: /^(\s*\/\/\s*)/,
       multi: {
         start: /^(\s*\/\*\s*@bookmarklet\s*)/i,
@@ -19,7 +19,7 @@ window.BMLoader = {
         match: /\s*@[^@]*/g
       }
     },
-    md = {
+    md = { // possible metadata values
       name: "",
       version: "",
       description: "",
@@ -37,7 +37,7 @@ window.BMLoader = {
     code = [],
     errors = [],
     bookmarklet = false,
-    processCmt = comment => {
+    processCmt = comment => { // parses a comment
       var match = comment.trim().match(/@([^\s]+)(?:\s+(.*))?$/);
       if (match) {
         var key = match[1],
@@ -60,7 +60,7 @@ window.BMLoader = {
         }
       }
     };
-    data.match(/[^\r\n]+/g).forEach((line, i, lines) => {
+    data.match(/[^\r\n]+/g).forEach((line, i, lines) => { // parses each line
       if (cmt.cmt.test(line)) {
         var comment = line.replace(cmt.cmt, "").trim(),
         canonicalComment = comment.toLowerCase().replace(/\s+/g, "");
@@ -81,7 +81,7 @@ window.BMLoader = {
             processCmt(comment);
           }
         }
-      } else if (cmt.multi.end.test(line) && inBlock.multi) {
+      } else if (cmt.multi.end.test(line) && inBlock.multi) { // ↓ checks for a multiline metadata block
         inBlock.multi = false;
       } else if (inBlock.multi) {
         processCmt(line);
@@ -89,7 +89,7 @@ window.BMLoader = {
         inBlock.multi = true;
         bookmarklet = true;
       } else {
-        code.push(line);
+        code.push(line); // pushes line to the running code if it isn't in a md block
       }
       if ((inBlock.md || inBlock.multi) && i + 1 == lines.length) {
         errors.push(`missing metdata block closing \`${closeMetadata}\``);
@@ -102,7 +102,7 @@ window.BMLoader = {
       bookmarklet: bookmarklet
     };
   },
-  processScript(scripttext, providedmd) {
+  processScript(scripttext, providedmd) { // process bookmarklet
     return new Promise(async resolve => {
       var parsed = this.parseScript(scripttext, providedmd),
       meta = parsed.metadata,
@@ -148,14 +148,20 @@ window.BMLoader = {
           document.head.append(l);
         });
       }
+      ["var", "async"].forEach(cur => { // metadata that fits better in the base object
+        if (parsed[cur]) {
+          parsed[cur] = parsed.metadata[cur];
+          delete parsed[cur];
+        }
+      })
       Object.assign(parsed.metadata, providedmd);
-      await waitScript;
+      await waitScript; // wait for the scripts to be loaded before running the script that needs them
       var namespace;
       if (parsed.metadata.name) {
         namespace = this.scripts[meta.name] = this.scripts[meta.name] || parsed;
       }
-      parsed.metadata.var = parsed.metadata.var || [];
-      parsed.metadata.var = parsed.metadata.var.reduce((obj, cur) => {
+      parsed.var = parsed.var || [];
+      parsed.var = parsed.var.reduce((obj, cur) => {
         var split = cur.split(" ")
         obj[split[0]] = split[1] || split[0];
         return obj
@@ -165,14 +171,15 @@ window.BMLoader = {
       };
       if (parsed.bookmarklet) {
         namespace.clicks = namespace.clicks + 1 || 0;
-        eval(`(${parsed.metadata.async ? "async " : ""}function(${Object.values(parsed.metadata.var).join()}){${code}})`).apply(namespace, eval(`[${Object.keys(parsed.metadata.var).join()}]`));
+        eval(`(${parsed.metadata.async ? "async " : ""}function(${Object.values(parsed.var).join()}){${code}})`) // possibility for async, args
+        .apply(namespace, eval(`[${Object.keys(parsed.var).join()}]`)); // run the function with the vars requested
       } else {
-        eval(code);
+        eval(code); // if it's not a bookmarklet, just run the code normally
       }
       resolve(module.exports);
     });
   },
-  loadScript(script, md) {
+  loadScript(script, md) { // load script from url
     return fetch(script).then(response => {
       if (response.ok) {
         return response.text();
@@ -183,10 +190,10 @@ window.BMLoader = {
       this.processScript(js, md)
     ).catch(alert)
   },
-  get loadBookmarklet() {
+  get loadBookmarklet() { // backward compatibility
     return BMLoader.loadScript
   },
-  getGithub(file) {
+  getGithub(file) { // get cdn.rawgit link of a github repo's file
     var filearr = file.split("/"),
     slug = filearr.slice(0, 2).join("/");
     return fetch(`https://api.github.com/repos/${slug}/releases/latest`).then(response => {
@@ -197,7 +204,7 @@ window.BMLoader = {
       }
     }).catch(alert);
   },
-  loadGithub(file) {
+  loadGithub(file) { // load script from latest github release
     return this.getGithub(file).then(latest => this.loadScript(latest));
   }
 };
